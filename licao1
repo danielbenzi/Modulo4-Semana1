@@ -1,0 +1,43 @@
+#nao esqueça de install requests
+pip install requests
+
+import requests
+
+
+
+class FipeIterator:
+    def __init__(self, marca_id):
+        self.marca_id = marca_id
+        self.modelos = []
+        self.current_index = 0
+        self.fetch_modelos()
+
+    def fetch_modelos(self):
+        url = f"https://parallelum.com.br/fipe/api/v1/carros/marcas/{self.marca_id}/modelos"
+        headers = {'user-agent': 'MyStudyApp'}
+        response = requests.get(url, headers=headers)
+
+        if response.status_code == 200:
+            data = response.json()
+            self.modelos = data['modelos']
+        else:
+            raise Exception(f"Failed to fetch modelos. Status code: {response.status_code}")
+
+    def __iter__(self):
+        return self
+
+    def __next__(self):
+        if self.current_index < len(self.modelos):
+            modelo = self.modelos[self.current_index]
+            self.current_index += 1
+            return {'Nome': modelo['nome'], 'ID': modelo['codigo']}
+        else:
+            raise StopIteration
+
+# Exemplo de uso:
+marca_id_selecionada = 21  # Substitua pelo ID da marca desejada
+
+iterator = FipeIterator(marca_id_selecionada)
+
+for carro in iterator:
+    print(carro)
